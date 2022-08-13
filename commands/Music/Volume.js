@@ -9,18 +9,16 @@ module.exports = {
     permissions: ["SendMessages"],
     owner: false,
     run: async (client, message, args, prefix, config, db) => {
+        let guildQueue = client.player.getQueue(message.guild.id);
         if (!args[0])
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(
-                            "Please provide an amount for the volume."
-                        )
-                        .setColor("Red"),
+                        .setDescription(guildQueue.volume)
+                        .setColor(15007566),
                 ],
             });
 
-        let guildQueue = client.player.getQueue(message.guild.id);
         guildQueue.setVolume(parseInt(args[0]));
 
         return message.reply({
