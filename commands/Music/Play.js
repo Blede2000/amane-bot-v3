@@ -87,7 +87,9 @@ function getPlaylistMessage(message, playlist) {
 
     chunkedPlaylist.forEach((chunk) => {
         let songs = chunk.map((song, index) => {
-            return `${index + 1}) [${song.name}](${song.url}) \n`;
+            return `${playlist.songs.indexOf(song) + 1}) [${song.name}](${
+                song.url
+            }) \n`;
         });
         embeds.push(
             new EmbedBuilder()
