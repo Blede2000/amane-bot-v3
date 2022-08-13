@@ -17,7 +17,7 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle("Song skipped to")
                     .setDescription(`[${nextSong.name}](${nextSong.url})`)
-                    .setColor("Blue"),
+                    .setColor(15007566),
             ],
         });
     },

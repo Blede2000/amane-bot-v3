@@ -2,23 +2,21 @@ const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
     config: {
-        name: "skip",
-        description: "Skip the current song",
-        usage: "skip",
-        aliases: ["s"],
+        name: "clear",
+        description: "Clear Queue",
+        usage: "clear",
+        aliases: ["cq"],
     },
     permissions: ["SendMessages"],
     owner: false,
     run: async (client, message, args, prefix, config, db) => {
         let guildQueue = client.player.getQueue(message.guild.id);
-        guildQueue.skip();
-        let nextSong = guildQueue.songs[1];
+        guildQueue.clearQueue();
 
         return message.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setTitle("Song skipped to")
-                    .setDescription(`[${nextSong.name}](${nextSong.url})`)
+                    .setTitle("Queue has been cleared!")
                     .setColor(15007566),
             ],
         });
