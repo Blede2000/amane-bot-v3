@@ -1,5 +1,5 @@
 {
-  "name": "DiscordJS-V14-Bot-Template",
+  "name": "Amane Bot V3",
   "version": "3.0.0",
   "description": "A Discord Bot template built by T.F.A#7524!",
   "main": "index.js",
@@ -10,9 +10,11 @@
   "author": "T.F.A#7524",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/opus": "^0.8.0",
     "better-sqlite3": "^7.6.2",
     "colors": "^1.4.0",
     "discord-api-types": "^0.36.2",
+    "discord-music-player": "^9.0.2",
     "discord.js": "^14.1.1",
     "mongoose": "^6.4.4",
     "node-fetch": "^2.6.7",
