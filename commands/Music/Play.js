@@ -1,5 +1,10 @@
 const { EmbedBuilder, codeBlock, ButtonStyle } = require("discord.js");
 const Pagination = require("customizable-discordjs-pagination");
+const Spotify = require("spotify-url-info");
+const fetch = require("isomorphic-unfetch");
+const { Playlist } = require("@jadestudios/discord-music-player");
+const { Utils } = require("@jadestudios/discord-music-player");
+const { getData, getPreview } = Spotify(fetch);
 
 module.exports = {
     config: {
@@ -22,10 +27,47 @@ module.exports = {
 
         let queue = client.player.createQueue(message.guild.id);
         let guildQueue = client.player.getQueue(message.guild.id);
-        await queue.join(message.member.voice.channel);
+        await guildQueue.join(message.member.voice.channel);
 
         if (isPlaylist(args[0])) {
-            let playlist = await queue.playlist(args.join(" ")).catch((_) => {
+            // console.log(args[0]);
+            let SpotifyResultData = await getData(args[0]).catch(() => null);
+            let SpotifyResult = {
+                name: SpotifyResultData.name,
+                author: SpotifyResultData.subtitle,
+                url: args[0],
+                songs: [],
+                type: SpotifyResultData.type,
+            };
+
+            SpotifyResult.songs = (
+                await Promise.all(
+                    (SpotifyResultData.trackList ?? []).map(
+                        async (track, index) => {
+                            const Result = await Utils.search(
+                                `${track.subtitle} - ${track.title}`,
+                                {},
+                                queue
+                            ).catch(() => null);
+                            if (Result && Result[0]) {
+                                // Result[0].data = SOptions.data;
+                                return Result[0];
+                            } else return null;
+                        }
+                    )
+                )
+            ).filter((V) => V !== null);
+
+            console.log(SpotifyResult);
+            if (SpotifyResult.songs.length === 0) {
+                message.reply("Empty playlist");
+                return;
+            }
+
+            const rawPlaylist = new Playlist(SpotifyResult, queue);
+            // console.log(await queue.playlist(args[0]));
+            let playlist = await queue.playlist(rawPlaylist).catch((_) => {
+                console.log(_);
                 if (!guildQueue) queue.stop();
             });
             getPlaylistMessage(message, playlist);
@@ -34,6 +76,7 @@ module.exports = {
 
         let song = await queue.play(args.join(" ")).catch((err) => {
             console.log(err);
+            message.reply("ERROR: " + err);
             if (!guildQueue) queue.stop();
         });
 
@@ -45,16 +88,16 @@ function isPlaylist(url) {
     const regexList = {
         YouTubePlaylist:
             /^((?:https?:)\/\/)?((?:www|m)\.)?((?:youtube\.com)).*(youtu.be\/|list=)([^#&?]*).*/,
+        YouTubePlaylistID: /[&?]list=([^&]+)/,
         SpotifyPlaylist:
             /https?:\/\/(?:embed\.|open\.)(?:spotify\.com\/)(?:(album|playlist)\/|\?uri=spotify:playlist:)((\w|-)+)(?:(?=\?)(?:[?&]foo=(\d*)(?=[&#]|$)|(?![?&]foo=)[^#])+)?(?=#|$)/,
         ApplePlaylist: /https?:\/\/music\.apple\.com\/.+?\/.+?\/(.+?)\//,
     };
 
-    return (
-        regexList.SpotifyPlaylist.test(url) ||
-        regexList.YouTubePlaylist.test(url) ||
-        regexList.ApplePlaylist.test(url)
-    );
+    return regexList.SpotifyPlaylist.test(url);
+    // regexList.YouTubePlaylist.test(url) ||
+    // regexList.YouTubePlaylistID.test(url) ||
+    // regexList.ApplePlaylist.test(url)
 }
 
 function chunkArray(arr, chunkCount) {

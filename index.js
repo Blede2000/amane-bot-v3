@@ -4,7 +4,7 @@ const {
     Collection,
     GatewayIntentBits,
 } = require("discord.js");
-const { Player } = require("discord-music-player");
+const { Player } = require("@jadestudios/discord-music-player");
 const config = require("./config/config.json");
 const colors = require("colors");
 
